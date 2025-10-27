@@ -42,6 +42,8 @@ export default function SellPage() {
   const [isTyping, setIsTyping] = useState(false);
   const printRef = React.useRef(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [showConfirmSale, setShowConfirmSale] = useState(false);
+  const [showInvoicePreview, setShowInvoicePreview] = useState(false);
 
   // Debounce du terme de recherche pour éviter trop d'appels API
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -131,10 +133,19 @@ export default function SellPage() {
     contentRef: printRef,
     documentTitle: `Facture_${Date.now()}`,
     onAfterPrint: () => {
-      // Save sale to DB after printing
-      saveSale();
+      // Afficher la boîte de confirmation après l'impression
+      setShowInvoicePreview(false);
+      setShowConfirmSale(true);
     },
   });
+
+  const showInvoicePreviewHandler = () => {
+    if (cart.length === 0) {
+      toast.error('Le panier est vide. Impossible de générer une facture.');
+      return;
+    }
+    setShowInvoicePreview(true);
+  };
 
   const saveSale = async () => {
     if (cart.length === 0) {
@@ -166,6 +177,7 @@ export default function SellPage() {
         toast.success('Vente enregistrée avec succès!');
         setCart([]);
         setClientName('');
+        setShowConfirmSale(false);
         try {
           await Promise.allSettled([
             fetch('/api/daily-report', { cache: 'no-store' }),
@@ -211,7 +223,7 @@ export default function SellPage() {
 
   return (
     <div className="relative">
-      <MobileNavigation userRole="seller" />
+      <MobileNavigation userRole="admin" />
       <div className="p-2 sm:p-4 lg:p-8 lg:pl-8">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 lg:mb-8">Vente Rapide</h1>
 
@@ -219,7 +231,16 @@ export default function SellPage() {
         <div className="lg:col-span-3">
           <Card className="mb-4 sm:mb-6 lg:mb-8">
             <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="text-lg sm:text-xl">Médicaments en Stock</CardTitle>
+              <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-lg sm:text-xl">
+                  Médicaments en Stock
+                  {Array.isArray(medications) && medications.filter(med => showOutOfStock || med.quantity > 0).length > 0 && (
+                    <span className="text-sm font-normal ml-2 bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      {medications.filter(med => showOutOfStock || med.quantity > 0).length} disponible{medications.filter(med => showOutOfStock || med.quantity > 0).length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </span>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {/* Barre de recherche et filtres */}
@@ -247,7 +268,7 @@ export default function SellPage() {
                       onClick={() => setSearchTerm('')} 
                       variant="outline"
                       title="Effacer la recherche"
-                      className="h-12 px-4"
+                      className="h-12 px-4 cursor-pointer"
                     >
                       Effacer
                     </Button>
@@ -255,7 +276,7 @@ export default function SellPage() {
                       onClick={() => setIsScannerOpen(true)} 
                       variant="outline" 
                       size="icon"
-                      className="h-12 w-12"
+                      className="h-12 w-12 cursor-pointer"
                     >
                       <Scan className="h-5 w-5" />
                     </Button>
@@ -319,76 +340,23 @@ export default function SellPage() {
                 </div>
               </div>
 
-              {/* Liste des médicaments */}
+              {/* Liste des médicaments - Tableau uniforme responsive comme dans /ventes */}
               {medications.length > 0 ? (
-                <div className="space-y-4">
-                  {/* Vue mobile avec cartes */}
-                  <div className="block lg:hidden space-y-3">
-                    {Array.isArray(medications) ? medications
-                      .filter(med => showOutOfStock || med.quantity > 0)
-                      .sort((a, b) => {
-                        if (sortBy === 'name') return a.name.localeCompare(b.name);
-                        if (sortBy === 'price') return a.price - b.price;
-                        if (sortBy === 'stock') return b.quantity - a.quantity;
-                        return 0;
-                      })
-                      .map((med) => (
-                      <Card key={med.id} className={`${med.quantity === 0 ? 'opacity-50' : ''} border border-gray-200`}>
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-base text-gray-900">{med.name}</h3>
-                              <div className="flex items-center gap-3 mt-2">
-                                <span className="text-lg font-bold text-green-600">
-                                  {formatCurrency(med.price)}
-                                </span>
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                  med.quantity > 10 ? 'bg-green-100 text-green-800' :
-                                  med.quantity > 0 ? 'bg-orange-100 text-orange-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  Stock: {med.quantity}
-                                </span>
-                              </div>
-                              {med.quantity > 10 ? (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 mt-2">
-                                  Disponible
-                                </span>
-                              ) : med.quantity > 0 ? (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800 mt-2">
-                                  Stock faible
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 mt-2">
-                                  Rupture
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <Button 
-                            onClick={() => addToCart(med)}
-                            disabled={med.quantity === 0}
-                            className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700"
-                            size="lg"
-                          >
-                            <PlusCircle className="h-5 w-5 mr-2" />
-                            Ajouter au panier
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    )) : []}
-                  </div>
-
-                  {/* Vue desktop avec tableau */}
-                  <div className="hidden lg:block border rounded-md max-h-96 overflow-y-auto">
+                <div className="border rounded-md overflow-hidden">
+                  {/* Indicateur de défilement en haut */}
+                  {medications.filter(med => showOutOfStock || med.quantity > 0).length > 5 && (
+                    <div className="text-xs text-gray-500 text-center py-1 bg-blue-50 border-b">
+                      📜 Faites défiler pour voir tous les médicaments
+                    </div>
+                  )}
+                  <div className="overflow-x-auto max-h-[50vh] sm:max-h-[55vh] lg:max-h-[60vh] overflow-y-auto">
                     <Table>
-                      <TableHeader>
+                      <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
                         <TableRow>
-                          <TableHead>Médicament</TableHead>
-                          <TableHead>Prix</TableHead>
-                          <TableHead>Stock</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Action</TableHead>
+                          <TableHead className="text-sm">Nom</TableHead>
+                          <TableHead className="text-sm">Prix</TableHead>
+                          <TableHead className="text-sm">Stock</TableHead>
+                          <TableHead className="text-sm">Action</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -401,43 +369,25 @@ export default function SellPage() {
                             return 0;
                           })
                           .map((med) => (
-                          <TableRow key={med.id} className={med.quantity === 0 ? 'opacity-50' : ''}>
-                            <TableCell className="font-medium">{med.name}</TableCell>
-                            <TableCell className="font-semibold text-green-600">
+                          <TableRow key={med.id} className="hover:bg-gray-50">
+                            <TableCell className="font-medium text-sm">{med.name}</TableCell>
+                            <TableCell className="text-green-600 font-semibold text-sm">
                               {formatCurrency(med.price)}
                             </TableCell>
-                            <TableCell>
-                              <span className={`font-medium ${
-                                med.quantity > 10 ? 'text-green-600' : 
-                                med.quantity > 0 ? 'text-orange-600' : 'text-red-600'
-                              }`}>
+                            <TableCell className="text-sm">
+                              <span className={med.quantity <= 0 ? 'text-red-600' : 'text-green-600'}>
                                 {med.quantity}
                               </span>
                             </TableCell>
                             <TableCell>
-                              {med.quantity > 10 ? (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
-                                  Disponible
-                                </span>
-                              ) : med.quantity > 0 ? (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
-                                  Stock faible
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">
-                                  Rupture
-                                </span>
-                              )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button 
-                                size="sm" 
+                              <Button
                                 onClick={() => addToCart(med)}
-                                disabled={med.quantity === 0}
-                                className="bg-blue-600 hover:bg-blue-700"
+                                disabled={med.quantity <= 0}
+                                size="sm"
+                                className="text-xs px-2 py-1 cursor-pointer disabled:cursor-not-allowed"
                               >
-                                <PlusCircle className="h-4 w-4 mr-1" />
-                                Ajouter
+                                <PlusCircle className="h-3 w-3 mr-1" />
+                                +
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -484,105 +434,57 @@ export default function SellPage() {
                 </div>
               ) : (
                 <>
-                  {/* Vue mobile du panier */}
-                  <div className="block lg:hidden space-y-3">
-                    {cart.map((item) => (
-                      <Card key={item.medication.id} className="border border-gray-200">
-                        <CardContent className="p-3">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <h4 className="font-medium text-sm">{item.medication.name}</h4>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {formatCurrency(item.medication.price)} × {item.quantity}
-                              </div>
-                            </div>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeFromCart(item.medication.id)}
-                              className="h-8 w-8 p-0 ml-2"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateCartQuantity(item.medication.id, -1)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <MinusCircle className="h-4 w-4" />
-                              </Button>
-                              <span className="font-medium w-8 text-center">{item.quantity}</span>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateCartQuantity(item.medication.id, 1)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <PlusCircle className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <span className="font-semibold text-green-600 text-base">
-                              {formatCurrency(item.medication.price * item.quantity)}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  {/* Vue desktop du panier */}
-                  <div className="hidden lg:block">
+                  {/* Panier - Tableau uniforme responsive */}
+                  <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Médicament</TableHead>
-                          <TableHead>Prix Unitaire</TableHead>
-                          <TableHead>Quantité</TableHead>
-                          <TableHead className="text-right">Sous-total</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
+                          <TableHead className="text-sm">Médicament</TableHead>
+                          <TableHead className="text-sm">Prix Unit.</TableHead>
+                          <TableHead className="text-sm">Quantité</TableHead>
+                          <TableHead className="text-sm text-right">Sous-total</TableHead>
+                          <TableHead className="text-sm text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {cart.map((item) => (
                           <TableRow key={item.medication.id}>
-                            <TableCell>{item.medication.name}</TableCell>
-                            <TableCell>
+                            <TableCell className="text-sm">{item.medication.name}</TableCell>
+                            <TableCell className="text-sm">
                               {formatCurrency(item.medication.price)}
                             </TableCell>
-                            <TableCell className="flex items-center">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => updateCartQuantity(item.medication.id, -1)}
-                              >
-                                <MinusCircle className="h-4 w-4" />
-                              </Button>
-                              <span className="mx-2">{item.quantity}</span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => updateCartQuantity(item.medication.id, 1)}
-                              >
-                                <PlusCircle className="h-4 w-4" />
-                              </Button>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 cursor-pointer"
+                                  onClick={() => updateCartQuantity(item.medication.id, -1)}
+                                >
+                                  <MinusCircle className="h-3 w-3" />
+                                </Button>
+                                <span className="mx-1 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 cursor-pointer"
+                                  onClick={() => updateCartQuantity(item.medication.id, 1)}
+                                >
+                                  <PlusCircle className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-right text-sm font-semibold text-green-600">
                               {formatCurrency(item.medication.price * item.quantity)}
                             </TableCell>
                             <TableCell className="text-right">
                               <Button
                                 variant="destructive"
-                                size="icon"
-                                className="h-6 w-6"
+                                size="sm"
+                                className="h-6 w-6 p-0 cursor-pointer"
                                 onClick={() => removeFromCart(item.medication.id)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-3 w-3" />
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -638,17 +540,17 @@ export default function SellPage() {
               {/* Boutons d'action */}
               <div className="space-y-3 pt-4">
                 <Button 
-                  onClick={handlePrint} 
-                  className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700"
+                  onClick={showInvoicePreviewHandler} 
+                  className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 cursor-pointer"
                   disabled={cart.length === 0}
                   size="lg"
                 >
                   <Printer className="mr-2 h-5 w-5" /> 
-                  Facture & Vente
+                  Aperçu Facture & Vente
                 </Button>
                 <Button 
                   onClick={saveSale} 
-                  className="w-full h-12 text-base" 
+                  className="w-full h-12 text-base cursor-pointer" 
                   variant="outline"
                   disabled={cart.length === 0}
                   size="lg"
@@ -701,6 +603,111 @@ export default function SellPage() {
       </Dialog>
 
       {/* Printable Invoice Component (hidden by default) */}
+      <Dialog open={showInvoicePreview} onOpenChange={setShowInvoicePreview}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Aperçu de la facture</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Affichage de la facture */}
+            <div className="border rounded-lg p-4 bg-white">
+              <PrintableContent ref={printRef} cart={cart} totalAmount={totalAmount} clientName={clientName} />
+            </div>
+            
+            {/* Boutons d'action */}
+            <div className="flex justify-between items-center pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowInvoicePreview(false)}
+                className="cursor-pointer"
+              >
+                Annuler
+              </Button>
+              
+              <div className="flex space-x-3">
+                <Button 
+                  onClick={() => {
+                    // Déclencher l'impression directe (sans enregistrement)
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow && printRef.current) {
+                      const printContent = (printRef.current as HTMLElement).innerHTML || '';
+                      printWindow.document.write(`
+                        <html>
+                          <head>
+                            <title>Facture PAJO PHARMA</title>
+                            <style>
+                              body { font-family: Arial, sans-serif; margin: 20px; }
+                              .print-header { text-align: center; margin-bottom: 20px; }
+                              table { width: 100%; border-collapse: collapse; }
+                              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                              th { background-color: #f2f2f2; }
+                              .total { font-weight: bold; font-size: 18px; }
+                              @media print { 
+                                body { margin: 0; }
+                                .no-print { display: none; }
+                              }
+                            </style>
+                          </head>
+                          <body>
+                            ${printContent}
+                          </body>
+                        </html>
+                      `);
+                      printWindow.document.close();
+                      printWindow.print();
+                      printWindow.close();
+                      setShowInvoicePreview(false);
+                      setShowConfirmSale(true);
+                    }
+                  }}
+                  variant="outline"
+                  className="cursor-pointer"
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Imprimer directement
+                </Button>
+                
+                <Button 
+                  onClick={handlePrint}
+                  className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Enregistrer PDF
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showConfirmSale} onOpenChange={setShowConfirmSale}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmer la vente</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              La facture a été imprimée/enregistrée. Voulez-vous maintenant enregistrer cette vente dans le système ?
+            </p>
+            <div className="flex justify-end space-x-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowConfirmSale(false)}
+                className="cursor-pointer"
+              >
+                Annuler
+              </Button>
+              <Button 
+                onClick={saveSale}
+                className="bg-green-600 hover:bg-green-700 cursor-pointer"
+              >
+                Confirmer la vente
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div style={{ display: 'none' }}>
         <PrintableContent ref={printRef} cart={cart} totalAmount={totalAmount} clientName={clientName} />
       </div>

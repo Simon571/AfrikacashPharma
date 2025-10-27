@@ -17,5 +17,5 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PAJO_PHARMA_1914 }}
-          projectId: pajo-pharma-1914
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AFRIKAPHARMA_1914 }}
+          projectId: afrikapharma-1914

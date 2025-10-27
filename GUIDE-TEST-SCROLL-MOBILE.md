@@ -16,7 +16,7 @@ http://localhost:3001
 ```
 
 ### 2. **Se Connecter comme Admin**
-- **Email** : `admin@pajopharma.com`
+- **Email** : `admin@afrikapharma.com`
 - **Mot de passe** : `admin123`
 
 ### 3. **Tester le Menu Mobile**

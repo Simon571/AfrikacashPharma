@@ -44,9 +44,11 @@ export async function GET(req: NextRequest) {
     };
   }
 
+  // Filtrage par rôle : vendeurs voient leurs ventes, admins voient toutes les ventes
   if (session.user?.role === 'seller') {
     whereClause.sellerId = session.user.id;
   }
+  // Pour admin : pas de filtre sellerId, donc voit toutes les ventes
 
   try {
     const sales = await prisma.sale.findMany({

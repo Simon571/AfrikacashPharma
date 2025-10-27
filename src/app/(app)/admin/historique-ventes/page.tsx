@@ -49,6 +49,7 @@ export default function HistoriqueVentesPage() {
         <h1 className="text-3xl font-bold">Historique des Ventes</h1>
         <Button
           variant="outline"
+          className="cursor-pointer"
           onClick={async () => {
             setLoading(true);
             try {

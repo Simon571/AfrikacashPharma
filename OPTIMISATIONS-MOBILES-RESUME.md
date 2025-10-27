@@ -1,4 +1,4 @@
-# ✨ OPTIMISATIONS MOBILES APPLIQUÉES - PajoPharma
+# ✨ OPTIMISATIONS MOBILES APPLIQUÉES - AfrikaPharma
 
 ## 🎯 Problème résolu
 **Avant** : L'application était difficile à utiliser sur téléphone pour les ventes
@@ -172,4 +172,4 @@ src/styles/mobile-optimizations.css - CSS mobile
 
 ## 🎉 Mission accomplie !
 
-L'application PajoPharma est maintenant **parfaitement utilisable sur téléphone** pour effectuer des ventes rapidement et efficacement. Les vendeurs peuvent maintenant utiliser leur smartphone comme un véritable terminal de vente mobile !
+L'application AfrikaPharma est maintenant **parfaitement utilisable sur téléphone** pour effectuer des ventes rapidement et efficacement. Les vendeurs peuvent maintenant utiliser leur smartphone comme un véritable terminal de vente mobile !

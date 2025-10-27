@@ -42,6 +42,7 @@ export default function VentesPage() {
   const [isTyping, setIsTyping] = useState(false);
   const printRef = React.useRef(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [showInvoicePreview, setShowInvoicePreview] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -137,7 +138,19 @@ export default function VentesPage() {
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `Facture-${new Date().toISOString().split('T')[0]}`,
+    onAfterPrint: () => {
+      setShowInvoicePreview(false);
+      toast.success('Facture imprimée/enregistrée avec succès!');
+    },
   });
+
+  const showInvoicePreviewHandler = () => {
+    if (cart.length === 0) {
+      toast.error('Le panier est vide. Impossible de générer une facture.');
+      return;
+    }
+    setShowInvoicePreview(true);
+  };
 
   const completeSale = useCallback(async () => {
     if (cart.length === 0) {
@@ -269,7 +282,14 @@ export default function VentesPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <span className="text-lg">Recherche de Médicaments</span>
+                <span className="text-lg">
+                  Recherche de Médicaments 
+                  {filteredAndSortedMedications.length > 0 && (
+                    <span className="text-sm font-normal ml-2 bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      {filteredAndSortedMedications.length} disponible{filteredAndSortedMedications.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </span>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button onClick={openScanner} size="sm" variant="outline" className="h-8 sm:h-9 cursor-pointer">
                     <Scan className="h-4 w-4 mr-1" />
@@ -313,12 +333,22 @@ export default function VentesPage() {
             </CardContent>
           </Card>
 
-          {/* Table Responsive pour tous les écrans */}
+          {/* Table Responsive pour tous les écrans avec hauteur fixe et défilement */}
           <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
+            <CardContent className="p-0 relative">
+              {/* Message de confirmation des modifications */}
+              <div className="text-xs text-white text-center py-1 bg-green-600 border-b">
+                ✅ MODIFICATIONS APPLIQUÉES - Interface tableau optimisée
+              </div>
+              {/* Indicateur de défilement en haut */}
+              {filteredAndSortedMedications.length > 5 && (
+                <div className="text-xs text-gray-500 text-center py-1 bg-blue-50 border-b">
+                  📜 Faites défiler pour voir tous les médicaments
+                </div>
+              )}
+              <div className="overflow-x-auto max-h-[50vh] sm:max-h-[55vh] lg:max-h-[60vh] overflow-y-auto">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
                     <TableRow>
                       <TableHead className="text-sm">Nom</TableHead>
                       <TableHead className="text-sm">Prix</TableHead>
@@ -389,7 +419,7 @@ export default function VentesPage() {
                 <p className="text-gray-500 text-center py-4 text-sm">Le panier est vide</p>
               ) : (
                 <>
-                  <div className="space-y-2 max-h-48 sm:max-h-60 lg:max-h-96 overflow-y-auto">
+                  <div className="space-y-2 max-h-[35vh] sm:max-h-[40vh] lg:max-h-[45vh] overflow-y-auto border rounded-md p-2 bg-gray-50">
                     {cart.map((item) => (
                       <div key={item.medication.id} className="border rounded-lg p-2 bg-gray-50">
                         <div className="flex justify-between items-start mb-2">
@@ -464,9 +494,9 @@ export default function VentesPage() {
                         <ShoppingCart className="h-4 w-4 mr-2" />
                         Finaliser la vente
                       </Button>
-                      <Button onClick={handlePrint} variant="outline" className="w-full text-sm cursor-pointer">
+                      <Button onClick={showInvoicePreviewHandler} variant="outline" className="w-full text-sm cursor-pointer">
                         <Printer className="h-4 w-4 mr-2" />
-                        Imprimer facture
+                        Aperçu & Impression
                       </Button>
                     </div>
                   </div>
@@ -476,6 +506,83 @@ export default function VentesPage() {
           </Card>
         </div>
       </div>
+
+      <Dialog open={showInvoicePreview} onOpenChange={setShowInvoicePreview}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Aperçu de la facture</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Affichage de la facture */}
+            <div className="border rounded-lg p-4 bg-white">
+              <PrintableContent ref={printRef} cart={cart} totalAmount={totalAmount} clientName={clientName} />
+            </div>
+            
+            {/* Boutons d'action */}
+            <div className="flex justify-between items-center pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowInvoicePreview(false)}
+                className="cursor-pointer"
+              >
+                Annuler
+              </Button>
+              
+              <div className="flex space-x-3">
+                <Button 
+                  onClick={() => {
+                    // Déclencher l'impression directe (sans enregistrement)
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow && printRef.current) {
+                      const printContent = (printRef.current as HTMLElement).innerHTML || '';
+                      printWindow.document.write(`
+                        <html>
+                          <head>
+                            <title>Facture PAJO PHARMA</title>
+                            <style>
+                              body { font-family: Arial, sans-serif; margin: 20px; }
+                              .print-header { text-align: center; margin-bottom: 20px; }
+                              table { width: 100%; border-collapse: collapse; }
+                              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                              th { background-color: #f2f2f2; }
+                              .total { font-weight: bold; font-size: 18px; }
+                              @media print { 
+                                body { margin: 0; }
+                                .no-print { display: none; }
+                              }
+                            </style>
+                          </head>
+                          <body>
+                            ${printContent}
+                          </body>
+                        </html>
+                      `);
+                      printWindow.document.close();
+                      printWindow.print();
+                      printWindow.close();
+                      setShowInvoicePreview(false);
+                      toast.success('Facture imprimée avec succès!');
+                    }
+                  }}
+                  variant="outline"
+                  className="cursor-pointer"
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Imprimer directement
+                </Button>
+                
+                <Button 
+                  onClick={handlePrint}
+                  className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Enregistrer PDF
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isScannerOpen} onOpenChange={setIsScannerOpen}>
         <DialogContent className="sm:max-w-md">

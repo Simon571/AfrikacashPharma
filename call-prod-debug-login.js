@@ -1,7 +1,7 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 async function call() {
-  const url = 'https://pajo-pharma-6qbhppyqk-nzamba-simons-projects.vercel.app/api/debug-login';
+  const url = 'https://afrikapharma-6qbhppyqk-nzamba-simons-projects.vercel.app/api/debug-login';
   console.log('POST', url);
   try {
     const res = await fetch(url, {

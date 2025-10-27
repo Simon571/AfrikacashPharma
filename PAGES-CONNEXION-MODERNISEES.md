@@ -69,7 +69,7 @@ Les pages de connexion ont été entièrement recréées pour correspondre exact
 ```tsx
 1. Header avec logo PajoPharma
 2. Titre "Connexion" + description
-3. Champ Email (placeholder: votre.email@pajopharma.com)
+3. Champ Email (placeholder: votre.email@afrikapharma.com)
 4. Champ Mot de passe (placeholder: ••••••••)
 5. Bouton "Se connecter" (bleu)
 6. Bouton "Retour à l'accueil" (rouge)

@@ -38,9 +38,9 @@ async function checkDeployment() {
     
     // URLs à tester
     const urls = [
-      'https://pajo-pharma.vercel.app',
-      'https://pajo-pharma.vercel.app/ventes',
-      'https://pajo-pharma.vercel.app/api/health'
+      'https://afrikapharma.vercel.app',
+      'https://afrikapharma.vercel.app/ventes',
+      'https://afrikapharma.vercel.app/api/health'
     ];
     
     for (const url of urls) {

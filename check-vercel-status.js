@@ -8,7 +8,7 @@
 const fetch = require('node-fetch');
 
 async function checkProductionStatus() {
-  const baseUrl = 'https://pajo-pharma-e1iqedbmz-nzamba-simons-projects.vercel.app';
+  const baseUrl = 'https://afrikapharma-e1iqedbmz-nzamba-simons-projects.vercel.app';
   
   console.log('🔍 Vérification de l\'état de production Vercel\n');
   console.log(`📡 URL: ${baseUrl}\n`);

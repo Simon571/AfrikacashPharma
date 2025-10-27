@@ -1,4 +1,4 @@
-# Guide de Test Mobile - PajoPharma
+# Guide de Test Mobile - AfrikaPharma
 
 ## 🎯 Comment tester l'application sur mobile
 

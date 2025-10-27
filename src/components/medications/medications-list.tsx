@@ -25,26 +25,56 @@ export function MedicationsList() {
   const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [importText, setImportText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
   
   // Check if user is admin
   const isAdmin = session?.user?.role === 'admin';
 
+  // Fonction pour charger les médicaments avec recherche
+  const fetchMedications = async (search?: string) => {
+    setIsLoading(true);
+    try {
+      const searchParams = new URLSearchParams();
+      if (search && search.trim()) {
+        searchParams.append('search', search.trim());
+      }
+      
+      const url = `/api/medications${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Vérifier si la réponse est un array ou un objet avec medications
+        const medicationsData = Array.isArray(data) ? data : (data.medications || []);
+        setMedications(medicationsData);
+      } else {
+        console.error('Erreur lors du chargement des médicaments');
+        setMedications([]);
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      setMedications([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchMedications = async () => {
-      const data = await getMedications();
-      setMedications(data);
-    };
-    fetchMedications();
-  }, []);
+    fetchMedications(searchTerm);
+  }, [searchTerm]);
 
-  
+  // Debounce pour éviter trop de requêtes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchMedications(searchTerm);
+    }, 300);
 
-  const filteredMedications = medications
-    .filter((medication) =>
-      medication.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => a.name.localeCompare(b.name)); // Tri alphabétique
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  // Pas besoin de filtrage côté client maintenant
+  const filteredMedications = medications.sort((a, b) => a.name.localeCompare(b.name));
 
   const handleAddToCart = (medication: Medication) => {
     addItem(medication, 1);
@@ -67,8 +97,9 @@ export function MedicationsList() {
       await createMedication(medicationData);
       toast.success('Médicament ajouté avec succès!');
     }
-    const updatedMedications = await getMedications();
-    setMedications(updatedMedications);
+    
+    // Recharger les médicaments
+    await fetchMedications(searchTerm);
     setIsDialogOpen(false);
     setSelectedMedication(null);
   };
@@ -77,8 +108,8 @@ export function MedicationsList() {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce médicament ?')) {
       await deleteMedication(id);
       toast.success('Médicament supprimé avec succès!');
-      const updatedMedications = await getMedications();
-      setMedications(updatedMedications);
+      // Recharger les médicaments
+      await fetchMedications(searchTerm);
     }
   };
 
@@ -132,8 +163,8 @@ export function MedicationsList() {
         }
       }
 
-      const updatedMedications = await getMedications();
-      setMedications(updatedMedications);
+      // Recharger les médicaments
+      await fetchMedications(searchTerm);
       setIsImportDialogOpen(false);
       setImportText('');
       
@@ -166,7 +197,7 @@ export function MedicationsList() {
             {/* Bouton d'import */}
             <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="flex items-center space-x-2">
+                <Button variant="outline" className="flex items-center space-x-2 cursor-pointer">
                   <Upload className="h-4 w-4" />
                   <span>Importer</span>
                 </Button>
@@ -195,10 +226,10 @@ export function MedicationsList() {
                     className="font-mono text-sm"
                   />
                   <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => setIsImportDialogOpen(false)} className="cursor-pointer">
                       Annuler
                     </Button>
-                    <Button onClick={handleImport}>
+                    <Button onClick={handleImport} className="cursor-pointer">
                       Importer les médicaments
                     </Button>
                   </div>
@@ -209,7 +240,7 @@ export function MedicationsList() {
             {/* Bouton d'ajout simple */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setSelectedMedication(null)}>
+                <Button onClick={() => setSelectedMedication(null)} className="cursor-pointer">
                   Ajouter un médicament
                 </Button>
               </DialogTrigger>
@@ -244,11 +275,11 @@ export function MedicationsList() {
               <TableCell>{medication.quantity}</TableCell>
               <TableCell>{new Date(medication.expirationDate).toLocaleDateString()}</TableCell>
               <TableCell>
-              <Button onClick={() => { console.log('Bouton Ajouter au panier cliqué'); handleAddToCart(medication); }}>Ajouter au panier</Button>
+              <Button onClick={() => { console.log('Bouton Ajouter au panier cliqué'); handleAddToCart(medication); }} className="cursor-pointer">Ajouter au panier</Button>
               {isAdmin && (
                 <>
-                  <Button variant="outline" size="sm" onClick={() => { setSelectedMedication(medication); setIsDialogOpen(true); }} className="ml-2">Modifier</Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(medication.id)} className="ml-2">Supprimer</Button>
+                  <Button variant="outline" size="sm" onClick={() => { setSelectedMedication(medication); setIsDialogOpen(true); }} className="ml-2 cursor-pointer">Modifier</Button>
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(medication.id)} className="ml-2 cursor-pointer">Supprimer</Button>
                 </>
               )}
             </TableCell>

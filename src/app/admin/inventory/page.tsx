@@ -180,7 +180,7 @@ export default function InventoryPage() {
           onClick={fetchInventory}
           disabled={isLoading}
           variant="outline"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           Actualiser
@@ -270,6 +270,7 @@ export default function InventoryPage() {
                 variant={filter === 'all' ? 'default' : 'outline'}
                 onClick={() => setFilter('all')}
                 size="sm"
+                className="cursor-pointer"
               >
                 Tous
               </Button>
@@ -277,6 +278,7 @@ export default function InventoryPage() {
                 variant={filter === 'low-stock' ? 'default' : 'outline'}
                 onClick={() => setFilter('low-stock')}
                 size="sm"
+                className="cursor-pointer"
               >
                 Stock Faible
               </Button>
@@ -284,6 +286,7 @@ export default function InventoryPage() {
                 variant={filter === 'expiring' ? 'default' : 'outline'}
                 onClick={() => setFilter('expiring')}
                 size="sm"
+                className="cursor-pointer"
               >
                 Expire Bientôt
               </Button>
@@ -291,6 +294,7 @@ export default function InventoryPage() {
                 variant={filter === 'out-of-stock' ? 'default' : 'outline'}
                 onClick={() => setFilter('out-of-stock')}
                 size="sm"
+                className="cursor-pointer"
               >
                 Rupture
               </Button>

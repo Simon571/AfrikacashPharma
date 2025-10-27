@@ -83,7 +83,7 @@ console.log('✅ Compatibilité optimale iOS/Android');
 console.log('\n🚀 DÉMARRER LE TEST:');
 console.log('npm run dev');
 console.log('# Puis ouvrir: http://localhost:3000');
-console.log('# Tester avec un admin: admin@pajopharma.com');
+console.log('# Tester avec un admin: admin@afrikapharma.com');
 
 console.log('\n📦 DÉPLOYER LES AMÉLIORATIONS:');
 console.log('git add .');

@@ -8,13 +8,13 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 
-console.log('🚀 Configuration automatique Vercel - PAJO PHARMA\n');
+console.log('🚀 Configuration automatique Vercel - AFRIKA PHARMA\n');
 
 // Variables d'environnement à configurer sur Vercel
 const envVars = {
   'DATABASE_URL': 'postgresql://neondb_owner:npg_pnTUlE2r7ecG@ep-polished-glade-aghxcb05-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require',
   'NEXTAUTH_SECRET': 'dtG+7HPdAGYXoAXFnMLAMqZ+cmsXDotr8hILbU60z0c=',
-  'NEXTAUTH_URL': 'https://pajo-pharma-e1iqedbmz-nzamba-simons-projects.vercel.app',
+  'NEXTAUTH_URL': 'https://afrikapharma-e1iqedbmz-nzamba-simons-projects.vercel.app',
   'NODE_ENV': 'production'
 };
 

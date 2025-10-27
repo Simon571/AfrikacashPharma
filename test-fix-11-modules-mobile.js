@@ -82,7 +82,7 @@ console.log('• Padding bottom : augmenté à pb-20');
 console.log('\n🚀 DÉMARRER LE TEST:');
 console.log('npm run dev');
 console.log('# URL: http://localhost:3001');
-console.log('# Admin: admin@pajopharma.com / admin123');
+console.log('# Admin: admin@afrikapharma.com / admin123');
 
 console.log('\n📦 APRÈS VALIDATION, DÉPLOYER:');
 console.log('git add .');

@@ -1,8 +1,8 @@
-# Identifiants Par Défaut - PajoPharma
+# Identifiants Par Défaut - AfrikaPharma
 
 ## Accès au Système
 
-Pour accéder aux différentes interfaces de PajoPharma, utilisez les identifiants suivants :
+Pour accéder aux différentes interfaces de AfrikaPharma, utilisez les identifiants suivants :
 
 ### 🔐 Identifiants par défaut
 

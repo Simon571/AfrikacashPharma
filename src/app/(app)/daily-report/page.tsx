@@ -69,28 +69,51 @@ export default function DailyReportPage() {
       setLoading(true);
       
       // Récupérer les données de ventes
-  const salesResponse = await fetch('/api/daily-report', { cache: 'no-store' });
+      console.log('🔍 Fetching daily report data...');
+      const salesResponse = await fetch('/api/daily-report', { cache: 'no-store' });
+      console.log('📊 Daily report response status:', salesResponse.status);
+      
       if (salesResponse.ok) {
         const salesData = await salesResponse.json();
+        console.log('✅ Daily report data:', salesData);
+        console.log('📊 Sales count:', salesData?.todaySales?.count);
+        console.log('💰 Sales revenue:', salesData?.todaySales?.totalRevenue);
         setReportData(salesData);
+      } else {
+        console.error('❌ Daily report error:', salesResponse.status, await salesResponse.text());
+        toast.error(`Erreur lors du chargement des rapports (${salesResponse.status})`);
       }
       
       // Récupérer les détails des ventes d'aujourd'hui
-  const salesDetailsResponse = await fetch('/api/sales?today=true', { cache: 'no-store' });
+      console.log('🔍 Fetching sales details...');
+      const salesDetailsResponse = await fetch('/api/sales?today=true', { cache: 'no-store' });
+      console.log('📋 Sales details response status:', salesDetailsResponse.status);
+      
       if (salesDetailsResponse.ok) {
         const salesDetailsData = await salesDetailsResponse.json();
+        console.log('✅ Sales details data:', salesDetailsData);
+        console.log('📋 Sales array length:', salesDetailsData?.sales?.length);
+        console.log('📋 Sales array:', salesDetailsData?.sales);
         setTodaySalesDetails(salesDetailsData.sales || []);
+      } else {
+        console.error('❌ Sales details error:', salesDetailsResponse.status, await salesDetailsResponse.text());
       }
 
       // Récupérer les dépenses
-  const expensesResponse = await fetch('/api/seller-expenses', { cache: 'no-store' });
+      console.log('🔍 Fetching expenses...');
+      const expensesResponse = await fetch('/api/seller-expenses', { cache: 'no-store' });
+      console.log('💰 Expenses response status:', expensesResponse.status);
+      
       if (expensesResponse.ok) {
         const expensesData = await expensesResponse.json();
+        console.log('✅ Expenses data:', expensesData);
         setExpenseData(expensesData);
+      } else {
+        console.error('❌ Expenses error:', expensesResponse.status, await expensesResponse.text());
       }
       
     } catch (error: any) {
-      console.error('Erreur:', error);
+      console.error('❌ Fetch error:', error);
       toast.error('Erreur lors du chargement des données');
     } finally {
       setLoading(false);

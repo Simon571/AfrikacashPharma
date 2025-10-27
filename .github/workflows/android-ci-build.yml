@@ -44,7 +44,7 @@ jobs:
         run: npm run build
 
       - name: Setup CAPACITOR_SERVER_URL
-        run: echo "CAPACITOR_SERVER_URL=https://pajo-pharma-delta.vercel.app" >> $GITHUB_ENV
+        run: echo "CAPACITOR_SERVER_URL=https://afrikapharma-delta.vercel.app" >> $GITHUB_ENV
 
       - name: Sync Capacitor Android (with retries)
         run: |

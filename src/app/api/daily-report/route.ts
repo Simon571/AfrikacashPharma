@@ -36,106 +36,135 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
+    console.log('🔍 Daily Report API - Session check:', {
+      hasSession: !!session,
+      userId: session?.user?.id,
+      userRole: session?.user?.role,
+      userName: session?.user?.name
+    });
+    
     if (!session?.user) {
+      console.log('❌ Daily Report API - No session found');
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    // Seuls les vendeurs peuvent accéder à leur propre rapport
-    if (session.user.role !== 'seller') {
+    // Les vendeurs et les admins peuvent accéder aux rapports
+    if (session.user.role !== 'seller' && session.user.role !== 'admin') {
+      console.log('❌ Daily Report API - Role not allowed:', session.user.role);
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
-    const sellerId = session.user.id;
     const today = new Date();
     const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
 
-    // MODIFICATION: Force le rapport journalier à zéro
-    // const todaySales = await prisma.sale.findMany({
-    //   where: {
-    //     sellerId: sellerId,
-    //     date: {
-    //       gte: startOfToday,
-    //       lte: endOfToday,
-    //     },
-    //   },
-    //   include: {
-    //     items: {
-    //       include: {
-    //         medication: true,
-    //       },
-    //     },
-    //     client: true,
-    //   },
-    // });
+    console.log('📅 Daily Report API - Date range:', {
+      startOfToday: startOfToday.toISOString(),
+      endOfToday: endOfToday.toISOString()
+    });
 
-    // Force toutes les données à zéro
-    const todaySales: any[] = [];
+    // Pour les vendeurs : seulement leurs ventes, pour les admins : toutes les ventes
+    const whereCondition: any = {
+      date: {
+        gte: startOfToday,
+        lte: endOfToday,
+      },
+    };
 
-    // Calcul des statistiques de ventes (forcées à zéro)
-    const totalRevenue = 0; // todaySales.reduce((sum: number, sale: any) => sum + sale.totalAmount, 0);
-    const averageOrderValue = 0; // todaySales.length > 0 ? totalRevenue / todaySales.length : 0;
+    // Si c'est un vendeur, filtrer par son ID
+    // Si c'est un admin, voir toutes les ventes (pas de filtre sellerId)
+    if (session.user.role === 'seller') {
+      whereCondition.sellerId = session.user.id;
+    }
+    // Pour admin : pas de filtre sellerId, donc voit toutes les ventes
 
-    // Top des médicaments vendus (forcé à vide)
+    console.log('🔍 Daily Report API - Where condition:', whereCondition);
+    console.log('📊 Daily Report API - User role:', session.user.role);
+
+    // Récupérer les ventes du jour
+    const todaySales = await prisma.sale.findMany({
+      where: whereCondition,
+      include: {
+        items: {
+          include: {
+            medication: true,
+          },
+        },
+        client: true,
+        seller: true, // Inclure les infos du vendeur pour les admins
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    console.log('📋 Daily Report API - Sales found:', {
+      count: todaySales.length,
+      totalAmount: todaySales.reduce((sum: number, sale: any) => sum + (sale.totalAmount || 0), 0)
+    });
+
+    // Calcul des statistiques de ventes
+    const totalRevenue = todaySales.reduce((sum: number, sale: any) => sum + (sale.totalAmount || 0), 0);
+    const averageOrderValue = todaySales.length > 0 ? totalRevenue / todaySales.length : 0;
+
+    // Top des médicaments vendus
     const medicationSales: Record<string, { name: string; quantitySold: number; revenue: number }> = {};
-    
-    // todaySales.forEach((sale: any) => {
-    //   sale.items.forEach((item: any) => {
-    //     const key = item.medicationId;
-    //     if (!medicationSales[key]) {
-    //       medicationSales[key] = {
-    //         name: item.medication.name,
-    //         quantitySold: 0,
-    //         revenue: 0,
-    //       };
-    //     }
-    //     medicationSales[key].quantitySold += item.quantity;
-    //     medicationSales[key].revenue += item.priceAtSale * item.quantity;
-    //   });
-    // });
+    todaySales.forEach((sale: any) => {
+      sale.items.forEach((item: any) => {
+        const key = item.medicationId;
+        if (!medicationSales[key]) {
+          medicationSales[key] = {
+            name: item.medication.name,
+            quantitySold: 0,
+            revenue: 0,
+          };
+        }
+        medicationSales[key].quantitySold += item.quantity;
+        medicationSales[key].revenue += (item.priceAtSale || 0) * item.quantity;
+      });
+    });
 
-    const topSellingMedications: any[] = []; // Object.values(medicationSales)
-      // .sort((a, b) => b.quantitySold - a.quantitySold)
-      // .slice(0, 5);
+    const topSellingMedications = Object.values(medicationSales)
+      .sort((a, b) => b.quantitySold - a.quantitySold)
+      .slice(0, 5);
 
-    // Répartition par méthode de paiement (forcée à vide)
+    // Répartition par méthode de paiement
     const paymentMethodsData: Record<string, { count: number; amount: number }> = {};
-    
-    // todaySales.forEach((sale: any) => {
-    //   if (!paymentMethodsData[sale.paymentMethod]) {
-    //     paymentMethodsData[sale.paymentMethod] = { count: 0, amount: 0 };
-    //   }
-    //   paymentMethodsData[sale.paymentMethod].count += 1;
-    //   paymentMethodsData[sale.paymentMethod].amount += sale.totalAmount;
-    // });
+    todaySales.forEach((sale: any) => {
+      const method = sale.paymentMethod || 'Inconnu';
+      if (!paymentMethodsData[method]) {
+        paymentMethodsData[method] = { count: 0, amount: 0 };
+      }
+      paymentMethodsData[method].count += 1;
+      paymentMethodsData[method].amount += sale.totalAmount || 0;
+    });
+    const paymentMethods = Object.entries(paymentMethodsData).map(([method, data]) => ({
+      method,
+      count: data.count,
+      amount: data.amount,
+    }));
 
-    const paymentMethods: any[] = []; // Object.entries(paymentMethodsData).map(([method, data]) => ({
-      // method,
-      // count: data.count,
-      // amount: data.amount,
-    // }));
-
-    // Répartition par heure (forcée à vide)
-    const hourlyData = Array(24).fill(0).map((_, hour) => ({ hour, sales: 0, revenue: 0 }));
-    
-    // todaySales.forEach((sale: any) => {
-    //   const hour = sale.date.getHours();
-    //   hourlyData[hour].sales += 1;
-    //   hourlyData[hour].revenue += sale.totalAmount;
-    // });
-
-    // Filtrer seulement les heures avec des ventes (sera vide)
-    const hourlyBreakdown: any[] = []; // hourlyData.filter(data => data.sales > 0);
+    // Répartition par heure
+    const hourlyData = Array(24)
+      .fill(0)
+      .map((_, hour) => ({ hour, sales: 0, revenue: 0 }));
+    todaySales.forEach((sale: any) => {
+      const date = new Date(sale.date);
+      const hour = date.getHours();
+      if (hour >= 0 && hour < 24) {
+        hourlyData[hour].sales += 1;
+        hourlyData[hour].revenue += sale.totalAmount || 0;
+      }
+    });
+    const hourlyBreakdown = hourlyData.filter((d) => d.sales > 0);
 
     const reportData: DailyReportData = {
       todaySales: {
-        count: 0, // todaySales.length,
-        totalRevenue: 0, // totalRevenue,
-        averageOrderValue: 0, // averageOrderValue,
+        count: todaySales.length,
+        totalRevenue,
+        averageOrderValue,
       },
-      topSellingMedications: [], // topSellingMedications,
-      paymentMethods: [], // paymentMethods,
-      hourlyBreakdown: [], // hourlyBreakdown,
+      topSellingMedications,
+      paymentMethods,
+      hourlyBreakdown,
     };
 
     return new NextResponse(JSON.stringify(reportData), {

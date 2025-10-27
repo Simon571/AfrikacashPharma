@@ -182,7 +182,7 @@ export default function GlobalReportPage() {
               })}
             </p>
           </div>
-          <Button onClick={fetchReportData} variant="outline">
+          <Button onClick={fetchReportData} variant="outline" className="cursor-pointer">
             <Activity className="h-4 w-4 mr-2" />
             Actualiser
           </Button>

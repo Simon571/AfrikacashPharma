@@ -1,4 +1,4 @@
-# Page d'Accueil Dynamique - PajoPharma
+# Page d'Accueil Dynamique - AfrikaPharma
 
 ## 🎨 Design Modern et Attrayant
 
@@ -15,7 +15,7 @@ La nouvelle page d'accueil a été recréée selon la capture d'écran de réfé
 ### 🏗️ Structure de la Page
 
 1. **Header**
-   - Logo PajoPharma avec icône Package
+   - Logo AfrikaPharma avec icône Package
    - Menu déroulant de connexion sophistiqué
    - Design clean et professionnel
 
