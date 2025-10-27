@@ -13,7 +13,7 @@ import { Suspense } from 'react';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "PAJO PHARMA",
+  title: "AFRIKA PHARMA",
   description: "Système de gestion de pharmacie",
   manifest: "/manifest.json",
   icons: {
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "PAJO PHARMA",
+    title: "AFRIKA PHARMA",
   },
 };
 

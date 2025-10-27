@@ -65,7 +65,7 @@ export function PWAInstaller() {
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-gray-900">
-                  Installer PAJO PHARMA
+                  Installer AFRIKA PHARMA
                 </h3>
                 <p className="text-xs text-gray-500">
                   Accédez plus rapidement à l'application

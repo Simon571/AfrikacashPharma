@@ -48,10 +48,10 @@ const PrintableContent = React.forwardRef<HTMLDivElement, PrintableContentProps>
             <div>
               <h1 className="text-3xl font-bold text-blue-800 mb-2">FACTURE</h1>
               <div className="text-sm">
-                <p className="text-xl font-bold text-blue-600 mb-1">PAJO PHARMA</p>
+                <p className="text-xl font-bold text-blue-600 mb-1">AFRIKA PHARMA</p>
                 <p className="text-gray-700">1365 Avenue Kabambar, Barumbu, Kinshasa</p>
                 <p className="text-gray-700">Tél: +243823030774</p>
-                <p className="text-gray-700">Email: contact@pajopharma.cd</p>
+                <p className="text-gray-700">Email: contact@afrikapharma.cd</p>
               </div>
             </div>
             <div className="text-right">
@@ -122,7 +122,7 @@ const PrintableContent = React.forwardRef<HTMLDivElement, PrintableContentProps>
         {/* Remarques */}
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 print:bg-gray-50 print:border-gray-400">
           <h4 className="font-bold text-gray-800 mb-2">Remarques:</h4>
-          <p className="text-gray-700">Merci d'avoir choisi PAJO PHARMA pour vos soins de santé.</p>
+          <p className="text-gray-700">Merci d'avoir choisi AFRIKA PHARMA pour vos soins de santé.</p>
         </div>
 
         {/* Pied de page */}
@@ -138,12 +138,12 @@ const PrintableContent = React.forwardRef<HTMLDivElement, PrintableContentProps>
               <p className="font-semibold mb-2">Informations importantes:</p>
               <p>• Conservez cette facture pour votre dossier médical.</p>
               <p>• En cas de question, contactez-nous au +243 970 000 000.</p>
-              <p>• Merci de votre confiance en PAJO PHARMA.</p>
+              <p>• Merci de votre confiance en AFRIKA PHARMA.</p>
             </div>
           </div>
           <div className="mt-6 pt-4 border-t border-gray-200">
             <p className="text-xs text-gray-500 print:text-black">
-              Document généré automatiquement le {invoiceDate} à {saleTime} - PAJO PHARMA © 2025
+              Document généré automatiquement le {invoiceDate} à {saleTime} - AFRIKA PHARMA © 2025
             </p>
           </div>
         </div>

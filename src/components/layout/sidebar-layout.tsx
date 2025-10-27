@@ -37,7 +37,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
         "fixed top-0 left-0 h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-lg p-4 transition-all duration-300 ease-in-out overflow-y-auto z-10 hidden lg:block",
         isSidebarOpen ? "w-64" : "w-0 overflow-hidden"
       )}>
-        <div className="text-2xl font-bold mb-6 text-white">PAJO PHARMA</div>
+        <div className="text-2xl font-bold mb-6 text-white">AFRIKA PHARMA</div>
         <nav className="space-y-2">
           {isAdmin && (
             <Link

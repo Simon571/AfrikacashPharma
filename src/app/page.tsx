@@ -19,7 +19,7 @@ export default function HomePage() {
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <Package className="h-5 w-5 text-blue-600" />
           </div>
-          <h1 className="text-2xl font-bold">PajoPharma</h1>
+          <h1 className="text-2xl font-bold">AfrikaPharma</h1>
         </div>
         <ConnectDropdown />
       </header>
@@ -32,7 +32,7 @@ export default function HomePage() {
         </h1>
         
         <p className="text-xl md:text-2xl mb-12 max-w-4xl leading-relaxed text-blue-100">
-          PajoPharma est un système complet pour gérer votre stock, accélérer vos ventes et<br />
+          AfrikaPharma est un système complet pour gérer votre stock, accélérer vos ventes et<br />
           optimiser vos commandes grâce à l'intelligence artificielle.
         </p>
 
@@ -116,7 +116,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="bg-gray-100 py-8 text-center text-gray-600">
-        <p>© 2025 PajoPharma. Tous droits réservés.</p>
+        <p>© 2025 AfrikaPharma. Tous droits réservés.</p>
       </footer>
     </div>
   );

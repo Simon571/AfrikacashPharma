@@ -153,7 +153,7 @@ export function MobileNavigation({ userRole = 'seller' }: MobileNavigationProps)
             {/* Header */}
             <div className="p-6 border-b bg-blue-600 text-white shrink-0">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">PajoPharma</h2>
+                <h2 className="text-xl font-bold">AfrikaPharma</h2>
                 <Button
                   variant="ghost"
                   size="icon"

@@ -17,7 +17,7 @@ export function Header() {
   return (
     <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
       <Link href="/">
-        <h1 className="text-xl font-bold">PAJO PHARMA</h1>
+        <h1 className="text-xl font-bold">AFRIKA PHARMA</h1>
       </Link>
       
       {session && (
