@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 15, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Public/Documents/AfrikaPharma/app/providers.tsx"],"sourcesContent":["'use client';\r\n\r\nimport { SessionProvider } from 'next-auth/react';\r\n\r\nexport function AuthProvider({ children }: { children: React.ReactNode }) {\r\n  return (\r\n    <SessionProvider>\r\n      {children}\r\n    </SessionProvider>\r\n  );\r\n}\r\n"],"names":[],"mappings":";;;;AAEA;AAFA;;;AAIO,SAAS,aAAa,EAAE,QAAQ,EAAiC;IACtE,qBACE,8OAAC,8IAAA,CAAA,kBAAe;kBACb;;;;;;AAGP","debugId":null}}]
+}

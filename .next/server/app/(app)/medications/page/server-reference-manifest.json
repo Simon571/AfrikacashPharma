@@ -1,0 +1,60 @@
+{
+  "node": {
+    "004eb8556c154574de50fba8c3810b2bf3fb64eee6": {
+      "workers": {
+        "app/(app)/medications/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/medications/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/lib/actions/medications.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/medications/page": "rsc"
+      }
+    },
+    "60a419c87fe051efc32f9db0e329f4852b0371fb1c": {
+      "workers": {
+        "app/(app)/medications/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/medications/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/lib/actions/medications.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/medications/page": "rsc"
+      }
+    },
+    "4049141e5abfd565c8874134e5ef6f4bdb4c7b1fb5": {
+      "workers": {
+        "app/(app)/medications/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/medications/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/lib/actions/medications.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/medications/page": "action-browser"
+      }
+    },
+    "602480e638f4876cceb7b7b1b9ad32365f7ad8abfb": {
+      "workers": {
+        "app/(app)/medications/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/medications/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/lib/actions/medications.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/medications/page": "action-browser"
+      }
+    },
+    "4038b080280fb5986b86cc2811dc6562e50b6cca09": {
+      "workers": {
+        "app/(app)/medications/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/medications/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/lib/actions/medications.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/medications/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

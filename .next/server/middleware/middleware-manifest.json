@@ -1,0 +1,59 @@
+{
+  "sorted_middleware": [],
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge/chunks/_e36ecefa._.js",
+        "server/edge/chunks/[root-of-the-server]__de110ef0._.js",
+        "server/edge/chunks/edge-wrapper_23ec0da7.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/dashboard{(\\\\.json)}?",
+          "originalSource": "/dashboard"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/setup{(\\\\.json)}?",
+          "originalSource": "/setup"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/clients{(\\\\.json)}?",
+          "originalSource": "/clients"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/totp{(\\\\.json)}?",
+          "originalSource": "/totp"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/licenses{(\\\\.json)}?",
+          "originalSource": "/licenses"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/subscriptions{(\\\\.json)}?",
+          "originalSource": "/subscriptions"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/trials{(\\\\.json)}?",
+          "originalSource": "/trials"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/audit{(\\\\.json)}?",
+          "originalSource": "/audit"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "E37639bVguP0OP4yGLsisMc42TOLnkkEpRcjcYrckXA=",
+        "__NEXT_PREVIEW_MODE_ID": "f331d552074b947500e772be61a7f932",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "1638b0a9ba279b901ec97d4d07b346aa4084785fd995cdc1d0eceaa75e27a264",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "cb6853b2742af3aff1c8239b9b3c827f0f0fd248b69a42bf1380d79ca656f38e"
+      }
+    }
+  },
+  "instrumentation": null,
+  "functions": {}
+}

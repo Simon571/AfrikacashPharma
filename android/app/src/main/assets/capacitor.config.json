@@ -1,0 +1,23 @@
+{
+	"appId": "com.afrikapharma.app",
+	"appName": "AFRIKA PHARMA",
+	"webDir": "out",
+	"server": {
+		"url": "https://pajo-pharma-delta.vercel.app",
+		"androidScheme": "https"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 2000,
+			"backgroundColor": "#ffffff",
+			"showSpinner": false
+		},
+		"StatusBar": {
+			"style": "dark",
+			"backgroundColor": "#ffffff"
+		},
+		"App": {
+			"statusBarStyle": "dark"
+		}
+	}
+}

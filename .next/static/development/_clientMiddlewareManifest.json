@@ -1,0 +1,34 @@
+[
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/dashboard(\\\\.json)?[\\/#\\?]?$",
+    "originalSource": "/dashboard"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/setup(\\\\.json)?[\\/#\\?]?$",
+    "originalSource": "/setup"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/clients(\\\\.json)?[\\/#\\?]?$",
+    "originalSource": "/clients"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/totp(\\\\.json)?[\\/#\\?]?$",
+    "originalSource": "/totp"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/licenses(\\\\.json)?[\\/#\\?]?$",
+    "originalSource": "/licenses"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/subscriptions(\\\\.json)?[\\/#\\?]?$",
+    "originalSource": "/subscriptions"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/trials(\\\\.json)?[\\/#\\?]?$",
+    "originalSource": "/trials"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/audit(\\\\.json)?[\\/#\\?]?$",
+    "originalSource": "/audit"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "node": {
+    "004eb8556c154574de50fba8c3810b2bf3fb64eee6": {
+      "workers": {
+        "app/admin/exchange-rate/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/exchange-rate/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/admin/exchange-rate/page": "action-browser"
+      }
+    },
+    "60a419c87fe051efc32f9db0e329f4852b0371fb1c": {
+      "workers": {
+        "app/admin/exchange-rate/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/exchange-rate/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/admin/exchange-rate/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

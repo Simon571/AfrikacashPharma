@@ -1,0 +1,3 @@
+{
+  "/api/medications/reorder-suggestions/route": "app/api/medications/reorder-suggestions/route.js"
+}

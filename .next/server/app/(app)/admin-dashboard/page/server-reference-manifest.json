@@ -1,0 +1,38 @@
+{
+  "node": {
+    "00c569fe821782a17d469d1e34abf8787fa790f7f3": {
+      "workers": {
+        "app/(app)/admin-dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/admin-dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/admin.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/admin-dashboard/page": "rsc"
+      }
+    },
+    "004eb8556c154574de50fba8c3810b2bf3fb64eee6": {
+      "workers": {
+        "app/(app)/admin-dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/admin-dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/admin.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/admin-dashboard/page": "rsc"
+      }
+    },
+    "60a419c87fe051efc32f9db0e329f4852b0371fb1c": {
+      "workers": {
+        "app/(app)/admin-dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/admin-dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/lib/actions/admin.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/lib/actions/exchange-rate.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/admin-dashboard/page": "rsc"
+      }
+    }
+  },
+  "edge": {}
+}

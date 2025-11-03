@@ -1,0 +1,3 @@
+{
+  "/api/medications/inventory/route": "app/api/medications/inventory/route.js"
+}
