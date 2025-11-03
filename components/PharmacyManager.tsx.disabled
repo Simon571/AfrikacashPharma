@@ -1,0 +1,263 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { Building2, Plus, Edit, Trash2, Eye, Settings, Users, BarChart3 } from 'lucide-react';
+
+interface PharmacyConfig {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+}
+
+interface PharmacyManagerProps {
+  onPharmacySelect?: (pharmacyId: string) => void;
+}
+
+const PharmacyManager: React.FC<PharmacyManagerProps> = ({ onPharmacySelect }) => {
+  const [pharmacies, setPharmacies] = useState<PharmacyConfig[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPharmacy, setSelectedPharmacy] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadPharmacies();
+  }, []);
+
+  const loadPharmacies = async () => {
+    try {
+      const response = await fetch('/api/pharmacies');
+      if (!response.ok) throw new Error('Erreur lors du chargement des pharmacies');
+      
+      const data = await response.json();
+      setPharmacies(data.pharmacies || []);
+    } catch (err) {
+      setError('Erreur lors du chargement des pharmacies');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelectPharmacy = (pharmacyId: string) => {
+    setSelectedPharmacy(pharmacyId);
+    onPharmacySelect?.(pharmacyId);
+  };
+
+  const handleDeletePharmacy = async (pharmacyId: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette pharmacie ?')) return;
+
+    try {
+      const response = await fetch(`/api/pharmacies/${pharmacyId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Erreur lors de la suppression');
+
+      await loadPharmacies();
+      if (selectedPharmacy === pharmacyId) {
+        setSelectedPharmacy(null);
+      }
+    } catch (err) {
+      setError('Erreur lors de la suppression de la pharmacie');
+      console.error(err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement des pharmacies...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-md">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Building2 className="w-6 h-6 text-blue-600" />
+            <h2 className="text-xl font-semibold text-gray-900">
+              Gestion des Pharmacies
+            </h2>
+          </div>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Nouvelle Pharmacie</span>
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
+
+      {/* Pharmacies List */}
+      <div className="p-6">
+        {pharmacies.length === 0 ? (
+          <div className="text-center py-12">
+            <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Aucune pharmacie configurée
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Commencez par créer votre première pharmacie
+            </p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Créer une pharmacie
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pharmacies.map((pharmacy) => (
+              <div
+                key={pharmacy.id}
+                className={`border rounded-lg p-6 cursor-pointer transition-all ${
+                  selectedPharmacy === pharmacy.id
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={() => handleSelectPharmacy(pharmacy.id)}
+              >
+                {/* Pharmacy Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                      {pharmacy.name}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {pharmacy.shortName}
+                    </p>
+                  </div>
+                  <div 
+                    className="w-6 h-6 rounded-full border-2"
+                    style={{ 
+                      backgroundColor: pharmacy.theme.primaryColor,
+                      borderColor: pharmacy.theme.primaryColor 
+                    }}
+                  />
+                </div>
+
+                {/* Contact Info */}
+                <div className="space-y-2 mb-4">
+                  <p className="text-sm text-gray-600 truncate">
+                    📍 {pharmacy.contact.address}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    📞 {pharmacy.contact.phone}
+                  </p>
+                  <p className="text-sm text-gray-600 truncate">
+                    ✉️ {pharmacy.contact.email}
+                  </p>
+                </div>
+
+                {/* Features */}
+                <div className="mb-4">
+                  <p className="text-xs text-gray-500 mb-2">Fonctionnalités actives :</p>
+                  <div className="flex flex-wrap gap-1">
+                    {Object.entries(pharmacy.features)
+                      .filter(([_, enabled]) => enabled)
+                      .map(([feature, _]) => (
+                        <span
+                          key={feature}
+                          className="px-2 py-1 bg-gray-100 text-xs text-gray-600 rounded"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // TODO: Ouvrir modal d'édition
+                      }}
+                      className="p-2 text-gray-400 hover:text-blue-600 rounded"
+                      title="Modifier"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // TODO: Voir statistiques
+                      }}
+                      className="p-2 text-gray-400 hover:text-green-600 rounded"
+                      title="Statistiques"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeletePharmacy(pharmacy.id);
+                      }}
+                      className="p-2 text-gray-400 hover:text-red-600 rounded"
+                      title="Supprimer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // TODO: Accéder au dashboard de cette pharmacie
+                    }}
+                    className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Accéder
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Selected Pharmacy Details */}
+      {selectedPharmacy && (
+        <div className="border-t border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Actions pour la pharmacie sélectionnée
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              <Eye className="w-4 h-4" />
+              <span>Voir le dashboard</span>
+            </button>
+            <button className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+              <Users className="w-4 h-4" />
+              <span>Gérer les utilisateurs</span>
+            </button>
+            <button className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
+              <Settings className="w-4 h-4" />
+              <span>Configuration</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PharmacyManager;

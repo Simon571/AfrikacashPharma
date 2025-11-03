@@ -1,0 +1,11 @@
+{
+  "appName": "PharmaSuite",
+  "version": "1.0.0",
+  "isConfigured": true,
+  "pharmacies": [],
+  "superAdmin": {
+    "maxPharmacies": 10,
+    "allowMultiTenant": true
+  },
+  "defaultPharmacy": "pharmacy_1761659896362_yubc6y9cf"
+}

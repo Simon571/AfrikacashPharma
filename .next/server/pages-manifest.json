@@ -1,0 +1,11 @@
+{
+  "/_error": "pages/_error.js",
+  "/_app": "pages/_app.js",
+  "/api/auth/totp/generate": "pages/api/auth/totp/generate.js",
+  "/api/auth/totp/verify": "pages/api/auth/totp/verify.js",
+  "/api/exchange-rate": "pages/api/exchange-rate.js",
+  "/admin/exchange-rate": "pages/admin/exchange-rate.js",
+  "/admin/medications-prices": "pages/admin/medications-prices.js",
+  "/_document": "pages/_document.js",
+  "/404": "pages/404.html"
+}

@@ -1,0 +1,60 @@
+{
+  "version": 3,
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge-runtime-webpack.js",
+        "server/middleware.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/dashboard(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/dashboard"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/setup(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/setup"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/clients(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/clients"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/totp(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/totp"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/licenses(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/licenses"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/subscriptions(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/subscriptions"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/trials(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/trials"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/audit(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/audit"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "qdqtaSgkO_YJoXW7SsZwz",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "E37639bVguP0OP4yGLsisMc42TOLnkkEpRcjcYrckXA=",
+        "__NEXT_PREVIEW_MODE_ID": "e6ac26b2ad5278a4ea453365892f7cc2",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "7bee8da6efabd044a29b88374e4dc3456e9c0475bdf04d768adb40f04d9f6454",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "aa537e3f476f5989c0605f2fd869f14ab4693c69a07e1d1f2cfdb94bb43ffd2d"
+      }
+    }
+  },
+  "functions": {},
+  "sortedMiddleware": [
+    "/"
+  ]
+}

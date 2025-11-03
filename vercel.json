@@ -1,0 +1,32 @@
+{
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "regions": ["cdg1"],
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "VERCEL_API_TOKEN": "@vercel_api_token",
+    "VERCEL_TEAM_ID": "@vercel_team_id",
+    "STRIPE_SECRET_KEY": "@stripe_secret_key",
+    "CRON_SECRET": "@cron_secret"
+  },
+  "functions": {
+    "app/api/**": {
+      "maxDuration": 60
+    }
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/admin/dashboard",
+      "permanent": false
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/manage-subscriptions",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

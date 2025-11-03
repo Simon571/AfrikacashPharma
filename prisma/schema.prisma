@@ -1,0 +1,544 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  username     String     @unique
+  passwordHash String
+  totpSecret   String?
+  totpEnabled  Boolean    @default(false)
+  role         String
+  // Gestion de période d'essai
+  trialStartDate    DateTime?   // Date de début de l'essai
+  trialEndDate      DateTime?   // Date de fin calculée automatiquement
+  isTrialActive     Boolean     @default(true)  // Statut actuel de l'essai
+  subscriptionType  String      @default("trial") // "trial", "premium", "expired"
+  encryptedTrialData String?    // Données chiffrées pour sécurité
+  lastTrialCheck    DateTime?   // Dernière vérification du statut
+  trialDaysUsed     Int         @default(0) // Nombre de jours utilisés
+  // Métadonnées
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  // Relations
+  auditLogs      AuditLog[]
+  sales          Sale[]
+  expenses       Expense[]
+  stockMovements StockMovement[]
+  trialManagement TrialManagement?
+}
+
+model Medication {
+  id                 String     @id @default(cuid())
+  name               String
+  pharmaceuticalForm String
+  purchasePrice      Float
+  price              Float
+  quantity           Int
+  expirationDate     DateTime
+  barcode            String?    @unique
+  isAvailableForSale Boolean         @default(false)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  saleItems          SaleItem[]
+  stockMovements     StockMovement[]
+}
+
+// Taux de change USD → CDF
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  rate      Float    // Taux USD → CDF (ex: 2800)
+  currency  String   @unique @default("USD") // Devise (ex: "USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  address      String?
+  latitude     Float?
+  longitude    Float?
+  status       ClientStatus @default(ACTIVE)
+  sales        Sale[]
+  // Relations to licensing and billing
+  license      License?
+  subscriptions ClientSubscription[]
+  payments     ClientPayment[]
+}
+
+model Sale {
+  id             String     @id @default(cuid())
+  date           DateTime   @default(now())
+  totalAmount    Float
+  amountPaid     Float
+  changeDue      Float
+  paymentMethod  String
+  additionalFees Float      @default(0)
+  discount       Float      @default(0)
+  remarks        String?
+  sellerId       String
+  clientId       String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  client         Client     @relation(fields: [clientId], references: [id])
+  seller         User       @relation(fields: [sellerId], references: [id])
+  items          SaleItem[]
+}
+
+model SaleItem {
+  id           String     @id @default(cuid())
+  saleId       String
+  medicationId String
+  quantity     Int
+  priceAtSale  Float
+  medication   Medication @relation(fields: [medicationId], references: [id])
+  sale         Sale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  model     String
+  recordId  String
+  userId    String
+  timestamp DateTime @default(now())
+  oldValue  String?
+  newValue  String?
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model InvoiceSettings {
+  id             String   @id @default(cuid())
+  companyName    String
+  companyAddress String
+  companyPhone   String
+  companyEmail   String
+  headerText     String?
+  footerText     String?
+  logoUrl        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Expense {
+  id           String   @id @default(cuid())
+  description  String
+  amount       Float
+  category     String?
+  date         DateTime @default(now())
+  registeredBy String
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+// Mouvement de stock (entrées, sorties, corrections)
+model StockMovement {
+  id            String     @id @default(cuid())
+  medicationId  String
+  userId        String
+  type          MovementType
+  quantity      Int
+  reason        String?
+  previousStock Int        // stock avant l'opération
+  newStock      Int        // stock après
+  createdAt     DateTime   @default(now())
+  medication    Medication @relation(fields: [medicationId], references: [id])
+  user          User       @relation(fields: [userId], references: [id])
+}
+
+// Gestion avancée des périodes d'essai
+model TrialManagement {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  trialDuration     Int       @default(30) // Durée en jours
+  remainingDays     Int       @default(30) // Jours restants
+  extensionsGranted Int       @default(0)  // Nombre d'extensions accordées
+  maxExtensions     Int       @default(2)  // Nombre max d'extensions
+  isBlocked         Boolean   @default(false) // Blocage manuel
+  blockReason       String?   // Raison du blocage
+  premiumFeatures   Json?     // Fonctionnalités premium accessibles
+  usageMetrics      Json?     // Métriques d'utilisation
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("trial_management")
+}
+
+// Historique des vérifications de période d'essai
+model TrialAuditLog {
+  id            String    @id @default(cuid())
+  userId        String
+  action        String    // "check", "extend", "block", "unblock", "expire"
+  oldStatus     String?   // Ancien statut
+  newStatus     String?   // Nouveau statut
+  daysRemaining Int?      // Jours restants au moment de l'action
+  metadata      Json?     // Données supplémentaires
+  ipAddress     String?   // Adresse IP de la vérification
+  userAgent     String?   // User agent du navigateur
+  timestamp     DateTime  @default(now())
+  
+  @@map("trial_audit_logs")
+
+}
+
+// Instances gérées par super-admin (multi-tenant SaaS)
+model Instance {
+  id                    String            @id @default(cuid())
+  name                  String            // Nom de l'instance (pharmacie, grossiste, etc.)
+  subdomain             String            @unique // pharma-marie.vercel.app
+  ownerName             String            // Nom du propriétaire
+  ownerEmail            String
+  ownerPhone            String?
+  status                String            @default("pending") // pending, active, suspended, deleted
+  
+  // Branding
+  logo                  String?           // URL du logo
+  primaryColor          String            @default("#3B82F6")
+  secondaryColor        String            @default("#10B981")
+  
+  // Domaine personnalisé
+  customDomain          String?           @unique
+  domainVerified        Boolean           @default(false)
+  
+  // Déploiement Vercel
+  vercelProjectId       String?           @unique
+  vercelDeploymentUrl   String?
+  vercelEnvironmentId   String?
+  
+  // Abonnement
+  subscription          Subscription?     @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  subscriptionId        String?           @unique
+  
+  // Données d'instance
+  databaseUrl           String?           // URL de la base de données dédiée
+  
+  // Crédentiels d'accès
+  apiKey                String            @unique @default(cuid())
+  
+  // Statistiques
+  activeUsers           Int               @default(0)
+  totalOrders           Int               @default(0)
+  monthlyRevenue        Float             @default(0)
+  
+  // Audit
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  lastActivityAt        DateTime          @default(now())
+  
+  // Relations
+  settings              InstanceSettings?
+  deploymentLogs        DeploymentLog[]
+  instanceAuditLogs     InstanceAuditLog[]
+  invoices              Invoice[]
+}
+
+// Configuration d'une instance
+model InstanceSettings {
+  id                    String            @id @default(cuid())
+  instanceId            String            @unique
+  instance              Instance          @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  
+  // Paramètres de l'application
+  appName               String            @default("PharmaSuite")
+  appDescription        String?
+  supportEmail          String?
+  supportPhone          String?
+  supportWhatsApp       String?
+  
+  // Paramètres de paiement
+  enablePayments        Boolean           @default(true)
+  paymentProviders      String[]          // ["avadapay", "strowallet", "stripe"]
+  
+  // Paramètres de notification
+  enableEmailNotifications   Boolean      @default(true)
+  enableWhatsAppNotifications Boolean     @default(true)
+  
+  // Limite d'utilisation
+  maxUsers              Int               @default(10)
+  maxProducts           Int               @default(1000)
+  storageLimit          Int               @default(5120) // MB
+  
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+}
+
+// Pharmacies gérées par super-admin
+model Pharmacy {
+  id                  String       @id @default(cuid())
+  name                String
+  email               String       @unique
+  phone               String?
+  address             String?
+  status              String       @default("trial") // "active", "trial", "inactive"
+  trialDaysRemaining  Int          @default(30)
+  adminUser           String?      // Username of admin user for this pharmacy
+  vendeurUser         String?      // Username of vendeur user for this pharmacy
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+// Licence attribuée à chaque client (application installée)
+model License {
+  id         String       @id @default(cuid())
+  clientId   String       @unique
+  key        String       @unique
+  status     LicenseStatus @default(ACTIVE)
+  issuedAt   DateTime     @default(now())
+  activatedAt DateTime?
+  expiresAt  DateTime?
+  assignedBy String?      // super-admin user id
+  usageLogs  Json?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  client     Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// Abonnement pour une instance
+model Subscription {
+  id                    String           @id @default(cuid())
+  
+  // Relation avec Instance (une souscription par instance)
+  instance              Instance?
+  
+  // Plan d'abonnement
+  planType              String           // "trial", "monthly", "quarterly", "annual", "lifetime"
+  planName              String           // "Trial 7 days", "Professional Monthly", etc.
+  
+  // Dates
+  startDate             DateTime         @default(now())
+  endDate               DateTime?        // Null si illimité
+  trialDaysRemaining    Int              @default(0)
+  
+  // Tarification
+  amount                Float            @default(0)
+  currency              String           @default("EUR")
+  billingCycle          String?          // "monthly", "quarterly", "annual"
+  autoRenew             Boolean          @default(true)
+  
+  // Statut
+  status                String           @default("active") // "active", "expired", "suspended", "cancelled", "pending_payment"
+  
+  // Paiement
+  paymentMethod         String?          // "avadapay", "strowallet", "stripe", "manual"
+  lastPaymentId         String?
+  nextBillingDate       DateTime?
+  failedPaymentAttempts Int              @default(0)
+  
+  // Notifications
+  expireReminderSentAt  DateTime?        // Date d'envoi du dernier rappel d'expiration
+  
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  
+  // Relations
+  payments              Payment[]
+}
+
+// Paiements liés aux abonnements ou paiements ponctuels
+model Payment {
+  id                    String           @id @default(cuid())
+  subscriptionId        String?
+  
+  // Montant
+  amount                Float
+  currency              String           @default("EUR")
+  
+  // Statut
+  status                String           @default("pending") // "received", "pending", "failed", "refunded"
+  
+  // Détails du paiement
+  paymentMethod         String           // "avadapay", "strowallet", "stripe", "manual"
+  transactionReference  String?          // ID du fournisseur de paiement
+  
+  // Dates
+  initiatedAt           DateTime         @default(now())
+  paidAt                DateTime?
+  receiptUrl            String?
+  
+  // Métadonnées
+  metadata              Json?            // Données supplémentaires du fournisseur
+  
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  
+  // Relations - Legacy pour clients individuels (optionnel)
+  clientId              String?
+  
+  // Relations - Nouvelles pour instances
+  subscription          Subscription?    @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+// Logs de déploiement des instances
+model DeploymentLog {
+  id                    String           @id @default(cuid())
+  instanceId            String
+  instance              Instance         @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  
+  action                String           // "create", "update", "deploy", "rollback", "delete"
+  status                String           // "pending", "in_progress", "success", "failed"
+  
+  details               Json?            // Détails de l'opération
+  errorMessage          String?
+  
+  createdAt             DateTime         @default(now())
+}
+
+// Audit des actions sur les instances
+model InstanceAuditLog {
+  id                    String           @id @default(cuid())
+  instanceId            String
+  instance              Instance         @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  
+  action                String           // "create", "update", "suspend", "reactivate", "delete"
+  userId                String           // Super-admin qui a effectué l'action
+  
+  changes               Json?            // Changements effectués
+  ipAddress             String?
+  
+  createdAt             DateTime         @default(now())
+}
+
+// Factures générées automatiquement
+model Invoice {
+  id                    String           @id @default(cuid())
+  instanceId            String
+  instance              Instance         @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  
+  invoiceNumber         String           @unique
+  
+  // Détails
+  description           String
+  amount                Float
+  currency              String           @default("EUR")
+  
+  // Dates
+  issueDate             DateTime         @default(now())
+  dueDate               DateTime
+  paidDate              DateTime?
+  
+  // Statut
+  status                String           @default("unpaid") // "paid", "unpaid", "overdue", "cancelled"
+  
+  // PDF
+  pdfUrl                String?
+  
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+}
+
+// Notifications planifiées
+model Notification {
+  id                    String           @id @default(cuid())
+  
+  // Destinataire
+  instanceId            String?
+  recipientEmail        String
+  recipientPhone        String?
+  
+  // Type et contenu
+  type                  String           // "expiration_reminder", "payment_failed", "new_feature", "promo"
+  subject               String
+  message               String
+  
+  // Canal
+  channel               String           // "email", "whatsapp", "both"
+  
+  // Statut
+  status                String           @default("pending") // "pending", "sent", "failed"
+  sentAt                DateTime?
+  failureReason         String?
+  
+  // Métadonnées
+  metadata              Json?
+  
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+}
+
+// Abonnement payant lié à un client (legacy)
+model ClientSubscription {
+  id            String           @id @default(cuid())
+  clientId      String
+  plan          String           // e.g., "monthly", "annual", "pro"
+  status        String           @default("pending")
+  startDate     DateTime?
+  endDate       DateTime?
+  billingCycle  String?
+  amount        Float?
+  currency      String?          @default("EUR")
+  paymentMethod String?
+  notes         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  client        Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  payments      ClientPayment[]
+}
+
+// Paiements clients (legacy)
+model ClientPayment {
+  id            String       @id @default(cuid())
+  subscriptionId String?
+  clientId      String
+  amount        Float
+  currency      String?      @default("EUR")
+  status        String       @default("pending")
+  paidAt        DateTime?
+  receiptUrl    String?
+  metadata      Json?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  client        Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  subscription  ClientSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+// Statuts utilitaires
+enum ClientStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+  PENDING
+}
+
+enum LicenseStatus {
+  ACTIVE
+  SUSPENDED
+  REVOKED
+  EXPIRED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  PENDING
+  CANCELLED
+}
+
+enum PaymentStatus {
+  RECEIVED
+  PENDING
+  LATE
+  FAILED
+}
+enum MovementType {
+  ENTRY
+  EXIT
+  CORRECTION
+}
